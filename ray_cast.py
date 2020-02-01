@@ -1,5 +1,15 @@
 import pygame
 from pygame.locals import *
+#import imp#ortlib as imp
+#import sys
+#import os
+#print(sys.path)
+#for i in sys.path:
+#    try:
+#        d = os.path.join(i, "pygame_draw.py")
+#        imp.load_source('pygame_draw', d)
+#        print(43)
+#    except Exception: pass
 from pygame_draw import pyg_draw, Grid
 from random import randint as ri
 from numpy.random import randint as nri
@@ -11,15 +21,12 @@ def trans(x, y, r, ang):
     y += r*sin(ang)
     return (x, y)
 
-def cone(pd, x, y, max, ang, view):
-    pos = trans(x, y, max_d, ang)
-    hm = max
-    rec = [x-hm, y-hm, max*2, max*2]
-    #pd.arc("green", rec, ang-view/2, ang+view/2)
-    pd.line("green", (x, y), pos)
-    #pd.rect("blue", rec, 5)
-    for t in range(int(ang-view/2), int(ang+view/2)):
-        pd.circ("green", trans(x, y, max, t), 10)
+def cone(pd, x, y, r, ang, view, num):
+    rec = [x-r, y-r, r*2, r*2]
+    pd.arc("green", rec, -ang-view, -ang+view)
+    pd.rect("blue", rec, 1)
+    for t in range(num):
+        pd.line("green", (x, y), trans(x, y, r, ang+t/(num-1)-view), 2)
     
 def check(arr, self):
     row, col = self.row, self.col
@@ -34,7 +41,7 @@ def check(arr, self):
 
 num = 2**0
 
-pd = pyg_draw(1)
+pd = pyg_draw(2)
 gr = Grid(pd, num)
 
 siz = (gr.row, gr.col)
@@ -50,7 +57,8 @@ map = np.array([
       
 msz = map.shape     
 ang = 0
-view = 1
+qual = 10
+view = 1/2
 max_d = 100
 x, y = 1.5*gr.x, 1.5*gr.y
 sx, sy = 0, 0
@@ -63,15 +71,15 @@ while run:
                 run = False
                 
             if event.key == K_z:
-                ang -= 1/4
+                ang -= 1/2
             if event.key == K_x:
-                ang += 1/4
+                ang += 1/2
                 
     grids[sx:sx+msz[1], sy:sy+msz[0]] = np.rot90(map)[::-1]
     gr.draw(grids)
                   
-    cone(pd, x, y, max_d, ang, view)
-    pd.circ("red", (x, y), 10)
+    cone(pd, x, y, max_d, ang, view, qual)
+    #pd.circ("red", (x, y), 10)
                                     
     pd.upd()
     pd.fill("black")
