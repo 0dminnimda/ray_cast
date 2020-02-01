@@ -44,7 +44,7 @@ class pyg_draw():
     def cen(self, a=2, b=2):
         return (self.scr[0]/a, self.scr[1]/b)
         
-    def circ(self, col, pos, rad, wid=0):
+    def circ(self, col, pos, rad=1, wid=0):
         if pos[0] != None:
             col = self.col(col)
             if wid > rad:
@@ -167,9 +167,9 @@ class Grid():
         mx, my = self.mx, self.my
         fx, fy = x-mx, y-my
         for i in range(row):
-                for j in range(col):
-                    color = self.colo(grid[i][j])
-                    p1 = x*i+mx/2
-                    p2 = y*j+my/2
-                    self.pd.rect(color, [p1, p2, fx, fy])
+            for j in range(col):
+                color = self.colo(grid[i][j])
+                p1 = x*i+mx/2
+                p2 = y*j+my/2
+                self.pd.rect(color, [p1, p2, fx, fy])
                     
