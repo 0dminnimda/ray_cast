@@ -26,9 +26,11 @@ def cone(pd, me):
         pts.append(po)
     return pts
 
-def intersection(a, b):
-    x1, y1, x2, y2 = a
-    x3, y3, x4, y4 = b
+def intersection(p1, p2, p3, p4):
+    x1, y1 = p1 
+    x2, y2 = p2
+    x3, y3 = p3
+    x4, y4 = p4
 
     det = (x1-x2)*(y3-y4)-(y1-y2)*(x3-x4)
 
@@ -42,14 +44,19 @@ def intersection(a, b):
     else:
         return False
 
-def lines(arr):
-    pass
+def lines(grd, w, h):
+    arr = []
+    for i in range(len(grd)):
+        for j in range(len(grd[i])):
+            pass
+
 
 def check(arr, gr, me, pd, pts):
+    lines = []
     pos = (me.x, me.y)
     row, col = gr.row, gr.col
     x, y = gr.x, gr.y
-    mx, my = gr.mx, gr.my
+    mx, my = 0, 0#gr.mx, gr.my
     fx, fy = x-mx, y-my
     for i in range(row):
         for j in range(col):
@@ -59,6 +66,19 @@ def check(arr, gr, me, pd, pts):
             if p1<pos[0]<p3 and p2<pos[1]<p4:
                 pass#pd.rect("red", [p1, p2, fx, fy], 3)
             pd.rect("graY", [p1, p2, fx, fy], 1)
+            if arr[i][j] == 1:
+                if arr[i-1][j] != 1:
+                    lines += [[(p1, p2), (p1, p4)]]
+                if arr[i][j+1] != 1:
+                    lines += [[(p1, p4), (p3, p4)],]
+                if arr[i+1][j] != 1:
+                    lines += [[(p3, p4), (p3, p2)],]
+                if arr[i][j-1] != 1:
+                    lines += [[(p3, p2), (p1, p2)]]
+                #intr = intersection((p1, p2), (p1, p4), pos, pts[0])
+                #if intr != False:
+    for lin in lines:
+        pd.line("lblue", lin[0], lin[1], 5)
 
 class cha():
     def __init__(self, gr, x, y, view, ang, qual, r):
@@ -95,17 +115,18 @@ map = np.array([
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 1, 1, 0, 0, 0],
-    [0, 0, 0, 1, 1, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],])
+    [0, 0, 0, 1, 1, 1, 0, 0],
+    [0, 0, 0, 1, 0, 1, 0, 1],
+    [0, 0, 0, 1, 1, 1, 1, 1],
+    [0, 0, 0, 0, 0, 0, 1, 1],
+    [0, 0, 0, 0, 0, 1, 0, 0],])
       
 msz = map.shape     
 sx, sy = 0, 0
-st = 0.1
+st = 0.2
 run = True
 grids[sx:sx+msz[1], sy:sy+msz[0]] = np.rot90(map)[::-1]
+#run = pd.pau()
 while run:
     #grids = nri(0, 3, siz)
     for event in pygame.event.get():
