@@ -23,7 +23,7 @@ def cone(pd, me):
     for t in range(num):
         po = trans(0, 0, r, ang-t/(num-1)*view*pi)
         pd.line("green", (x, y), (po[0]+x, po[1]+y), 2)
-        pts.append(po)
+        pts.append([(x, y), (po[0]+x, po[1]+y)])
     return pts
 
 def intersection(p1, p2, p3, p4):
@@ -34,13 +34,20 @@ def intersection(p1, p2, p3, p4):
 
     det = (x1-x2)*(y3-y4)-(y1-y2)*(x3-x4)
 
-    t = ((x1-x3)*(y3-y4)-(y1-y3)*(x3-x4))/det
-    u = -((x1-x2)*(y3-y3)-(y1-y2)*(x3-x4))/det
+    if det != 0:
+        t = ((x1-x3)*(y3-y4)-(y1-y3)*(x3-x4))/det
+        u = -((x1-x2)*(y1-y3)-(y1-y2)*(x1-x3))/det
 
-    if 0 <= t <= 1 and 0 <= u <= 1:
-        px = x1+t*(x2-x1)
-        py = y1+t*(y2-y1)
-        return [px, py]
+        if 0 <= t <= 1 and 0 <= u <= 1:
+            px = x1+t*(x2-x1)
+            py = y1+t*(y2-y1)
+            """ or this:
+            px = x3+u*(x4-x3)
+            py = y3+u*(y4-y3)
+            """
+            return [px, py]
+        else:
+            return False
     else:
         return False
 
@@ -67,17 +74,19 @@ def check(arr, gr, me, pd, pts):
                 pass#pd.rect("red", [p1, p2, fx, fy], 3)
             pd.rect("graY", [p1, p2, fx, fy], 1)
             if arr[i][j] == 1:
+                if arr[i+1][j] != 1:
+                    lines += [[(p3, p4), (p3, p2)]]
                 if arr[i-1][j] != 1:
                     lines += [[(p1, p2), (p1, p4)]]
                 if arr[i][j+1] != 1:
-                    lines += [[(p1, p4), (p3, p4)],]
-                if arr[i+1][j] != 1:
-                    lines += [[(p3, p4), (p3, p2)],]
+                    lines += [[(p1, p4), (p3, p4)]]
                 if arr[i][j-1] != 1:
                     lines += [[(p3, p2), (p1, p2)]]
-                #intr = intersection((p1, p2), (p1, p4), pos, pts[0])
-                #if intr != False:
     for lin in lines:
+        for pt in pts:
+            intr = intersection(lin[0], lin[1], pt[0], pt[1])
+            if intr != False:
+                pd.circ("red", intr, 5)
         pd.line("lblue", lin[0], lin[1], 5)
 
 class cha():
@@ -123,7 +132,7 @@ map = np.array([
       
 msz = map.shape     
 sx, sy = 0, 0
-st = 0.2
+st = 0.4
 run = True
 grids[sx:sx+msz[1], sy:sy+msz[0]] = np.rot90(map)[::-1]
 #run = pd.pau()
