@@ -30,6 +30,9 @@ class pyg_draw():
             "white":(255, 255, 255),
             "black":(0, 0, 0),
             "gray":(127, 127, 127),
+            "yellow":(255, 255, 0),
+            "lblue":(0, 255, 255),
+            "purple":(255, 0, 255)
             }
 
         self.fonts = []
@@ -144,7 +147,7 @@ class Grid():
         else:
             row = 17*num
             col = 9*num
-        self.row, self.col = row, col 
+        self.row, self.col = int(row), int(col) 
         ax, ay = w/row, h/col
         margx, margy = ax*off, ay*off
         self.mx, self.my = margx, margy
