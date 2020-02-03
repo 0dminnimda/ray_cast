@@ -164,7 +164,7 @@ class Grid():
     def colo(self, color):
         return self.colors.get(color)
         
-    def draw(self, grid):
+    def draw(self, grid, wid=0):
         row, col = self.row, self.col
         x, y = self.x, self.y
         mx, my = self.mx, self.my
@@ -174,5 +174,5 @@ class Grid():
                 color = self.colo(grid[i][j])
                 p1 = x*i+mx/2
                 p2 = y*j+my/2
-                self.pd.rect(color, [p1, p2, fx, fy])
+                self.pd.rect(color, [p1, p2, fx, fy], wid)
                     

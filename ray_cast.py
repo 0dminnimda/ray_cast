@@ -51,11 +51,13 @@ def intersection(p1, p2, p3, p4):
     else:
         return False
 
-def max_p(arr, pos):
+def min_p(arr, pos):
     min = float('Inf')
     m = None
     for i in arr:
-        if np.linalg.norm([i[0]-pos[0], i[1]-pos[1]]) < min:
+        d = np.linalg.norm([i[0]+pos[0], i[1]+pos[1]])
+        if d < min:
+            min = d
             m = i
     return m
 
@@ -83,18 +85,18 @@ def check(arr, gr, me, pd, rays):
                     lines += [[(p1, p4), (p3, p4)]]
                 if arr[i][j-1] != 1:
                     lines += [[(p3, p2), (p1, p2)]]
+    for lin in lines:
+        pd.line("lblue", lin[0], lin[1], 2)
     for ray in rays:
         a = []
         for lin in lines:
             intr = intersection(lin[0], lin[1], pos, ray)
             if intr != False:
-                a.append(intr)
-                #pd.circ("red", intr, 5)
-            #pd.line("lblue", lin[0], lin[1], 5)
-        g = max_p(a, pos)
-        if g != None:
-            #pd.circ("red", g, 5)
-            pd.line("white", g, pos)
+                #a.append(intr)
+        #intr = min_p(a, pos)
+        #if intr != None:
+                pd.line("red", intr, pos)
+                pd.circ("lblue", intr, 5)
 
 class cha():
     def __init__(self, gr, x, y, view, ang, qual, r):
@@ -118,8 +120,8 @@ num = 1
 pd = pyg_draw(2)
 gr = Grid(pd, num)
 
-qual = 200
-view = 1
+qual = 2#00
+view = 1/8
 r = gr.x*4
 st = 0.25
 rot_ang = tau/32
@@ -165,7 +167,7 @@ while run:
             if event.key == K_d:
                 me.mov(st, 0)
     
-    gr.draw(grids)
+    #gr.draw(grids, 10)
                   
     rays = cone(pd, me)
     check(grids, gr, me, pd, rays)
