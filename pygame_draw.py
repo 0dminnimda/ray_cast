@@ -138,7 +138,7 @@ class pyg_draw():
                 return False
                 
 class Grid():
-    def __init__(self, pd, num, off=0.1):
+    def __init__(self, pd, num, off=0):
         self.pd = pd
         w, h = pd.scr
         if pd.device == 1:
