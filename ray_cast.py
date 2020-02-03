@@ -21,8 +21,9 @@ def cone(pd, me):
     pts = []
     for t in range(num):
         po = trans(0, 0, r, ang-t/(num-1)*view*tau)
-        pd.line("green", (x, y), (po[0]+x, po[1]+y), 2)
-        pts.append([(x, y), (po[0]+x, po[1]+y)])
+        d = (po[0]+x, po[1]+y)
+        pd.line("green", (x, y), d, 2)
+        pts.append(d)
     return pts
 
 def intersection(p1, p2, p3, p4):
@@ -50,6 +51,10 @@ def intersection(p1, p2, p3, p4):
     else:
         return False
 
+def max_p(arr):
+    for i in arr:
+        pass
+
 def check(arr, gr, me, pd, rays):
     lines = []
     pos = (me.x, me.y)
@@ -75,11 +80,14 @@ def check(arr, gr, me, pd, rays):
                 if arr[i][j-1] != 1:
                     lines += [[(p3, p2), (p1, p2)]]
     for ray in rays:
+        a = []
         for lin in lines:
-            intr = intersection(lin[0], lin[1], ray[0], ray[1])
+            intr = intersection(lin[0], lin[1], pos, ray)
             if intr != False:
+                #a.append(intr)
                 pd.circ("red", intr, 5)
             #pd.line("lblue", lin[0], lin[1], 5)
+       #pd.circ("red", max_p(a), 5)
 
 class cha():
     def __init__(self, gr, x, y, view, ang, qual, r):
