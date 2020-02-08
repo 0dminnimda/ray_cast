@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
-from pygame_draw import pyg_draw, Grid
+from pygame_draw import pyg_draw, Grid, mou_pos
+from uotp import graph
 from random import randint as ri
 from numpy.random import randint as nri
 import numpy as np
@@ -15,9 +16,9 @@ def cone(pd, me):
     x, y, r = me.x, me.y, me.r
     ang, view, num = me.ang, me.view, me.qual
     rec = [x-r, y-r, r*2, r*2]
-    pd.circ("yellow", (x, y), 10)
+    pd.circ("white", (x, y), 10)
     #pd.rect("blue", rec, 2)
-    #pd.circ("blue", (x, y), r, 2)
+    pd.circ("blue", (x, y), r, 2)
     pts = []
     for t in range(num):
         po = trans(0, 0, r, ang-t/(num-1)*view*tau)
@@ -47,19 +48,34 @@ def intersection(p1, p2, p3, p4):
             """
             return [px, py]
         else:
-            return False
+            return [x4, y4]
     else:
         return False
+
+def vecl(*arg):
+    v = None
+    if len(arg) == 1:
+        e = arg[0]
+        v = np.linalg.norm(e)
+    elif len(arg) == 2:
+        s, e = arg
+        s1, s2 = s
+        e1, e2 = e
+        v = np.linalg.norm([e1-s1, e2-s2])
+    return v
 
 def min_p(arr, pos):
     min = float('Inf')
     m = None
-    for i in arr:
-        d = np.linalg.norm([i[0]+pos[0], i[1]+pos[1]])
+    for j in range(len(arr)):
+        i = arr[j]
+        #if i == True:
+            #return pos, True
+        d = vecl(pos, i)
         if d < min:
             min = d
-            m = i
-    return m
+            m = arr[j]
+    return m, min
 
 def check(arr, gr, me, pd, rays):
     lines = []
@@ -75,7 +91,7 @@ def check(arr, gr, me, pd, rays):
             p3, p4 = p1+fx, p2+fy
             if p1<pos[0]<p3 and p2<pos[1]<p4:
                 pass#pd.rect("red", [p1, p2, fx, fy], 3)
-            pd.rect("graY", [p1, p2, fx, fy], 1)
+            #pd.rect("graY", [p1, p2, fx, fy], 1)
             if arr[i][j] == 1:
                 if arr[i+1][j] != 1:
                     lines += [[(p3, p4), (p3, p2)]]
@@ -86,17 +102,40 @@ def check(arr, gr, me, pd, rays):
                 if arr[i][j-1] != 1:
                     lines += [[(p3, p2), (p1, p2)]]
     for lin in lines:
-        pd.line("lblue", lin[0], lin[1], 2)
+        pd.line("white", lin[0], lin[1], 4)
+    dists = []
     for ray in rays:
         a = []
         for lin in lines:
             intr = intersection(lin[0], lin[1], pos, ray)
             if intr != False:
-                #a.append(intr)
-        #intr = min_p(a, pos)
-        #if intr != None:
-                pd.line("red", intr, pos)
-                pd.circ("lblue", intr, 5)
+                #if intr == True:
+                    #a.append(True)
+                #else:
+                a.append(intr)
+            #elif intr == False:
+                #a.append(None)
+        intr, di = min_p(a, pos)
+        if intr != None:
+            pd.line("red", intr, pos)
+            #pd.circ("lblue", intr, 5)
+            dists.append(di)
+            
+    return dists
+
+def transc(arr, max):
+    cols = []
+    for i in arr:
+        if i == True:
+            q = 255
+        else:
+            q = 255*i/max
+        '''if q >= 127:
+            cols.append(1)
+        elif q < 127:
+            cols.append(0)'''
+        cols.append(q)
+    return cols
 
 class cha():
     def __init__(self, gr, x, y, view, ang, qual, r):
@@ -107,44 +146,63 @@ class cha():
         self.gr = gr
         self.x, self.y = x*gr.x, y*gr.y
         
-    def mov(self, x, y):
-        self.x += x*self.gr.x
-        self.y += y*self.gr.y
+    def mov(self, x, y, u=1):
+        if u == 0:
+            self.x += x
+            self.y += y
+        elif u != 0:
+            self.x += x*self.gr.x
+            self.y += y*self.gr.y
+            print(self.x)
         
-    def pos(self, x, y):
-        self.x = x*self.gr.x
-        self.y = y*self.gr.y
+    def pos(self, x, y, u=1):
+        if u == 0:
+            self.x = x
+            self.y = y
+        elif u != 0:
+            self.x = x*self.gr.x
+            self.y = y*self.gr.y
 
-num = 1
+num = 2**5
 
-pd = pyg_draw(2)
-gr = Grid(pd, num)
+pd = pyg_draw(1)
+gr = Grid(pd, num, 0)
+mou = mou_pos(pd)
+gra = graph(pd, num)
 
-qual = 2#00
+wid, hei = pd.scr
+
+qual = num#200
+print(qual)
 view = 1/8
-r = gr.x*4
+r = gr.x*5
 st = 0.25
-rot_ang = tau/32
+rot_ang = tau/2**5
 
-me = cha(gr, 4, 4, view, 0, qual, r)
+me = cha(gr, 5, 4, view, 0, qual, r)
 
 siz = ((gr.row), (gr.col))
 grids = np.full(siz, 0)
 
 map = np.array([
-    [0, 0, 1, 1, 0, 0, 1, 1],
-    [0, 1, 1, 0, 0, 0, 1, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 1, 1, 1, 0, 0],
-    [1, 0, 0, 1, 0, 1, 0, 1],
-    [1, 1, 0, 1, 1, 1, 1, 1],
-    [0, 0, 1, 0, 0, 0, 1, 1],
-    [0, 0, 0, 0, 0, 1, 0, 0],])
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0],
+    [1, 0, 0, 1, 0, 0, 0, 0],
+    [1, 0, 1, 1, 0, 0, 1, 1],
+    [1, 0, 1, 0, 0, 0, 0, 1],
+    [1, 0, 1, 0, 1, 0, 0, 1],
+    [1, 0, 0, 0, 1, 0, 0, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1],
+    ])
+      
+print(gr.colo(1))
       
 msz = map.shape     
 sx, sy = 0, 0
-run = True
+run =  True
 grids[sx:sx+msz[1], sy:sy+msz[0]] = np.rot90(map)[::-1]
+grd2 = np.full((gr.row, 1), 1)
+
 #run = pd.pau()
 while run:
     #grids = nri(0, 3, siz)
@@ -160,17 +218,31 @@ while run:
                 
             if event.key == K_w:
                 me.mov(0, -st)
+                print(me.x, me.y)
             if event.key == K_s:
                 me.mov(0, st)
             if event.key == K_a:
                 me.mov(-st, 0)
             if event.key == K_d:
                 me.mov(st, 0)
+                
+        if event.type != MOUSEBUTTONUP:
+            #me.pos(*mou.mp(cent=0), u=0)
+            #print(me.x, me.y)
+            pass
     
-    #gr.draw(grids, 10)
+    #gr.draw(grd2, yo=hei/2)
+    #print(grd2)
                   
     rays = cone(pd, me)
-    check(grids, gr, me, pd, rays)
-                                    
+    dists = check(grids, gr, me, pd, rays)
+        
+    darr, dists = gra.tran(dists, r, 2.5, 20)
+        
+    gra.draw(darr, dists)
+    
+    #me.ang -= 2*rot_ang
+        
+    #pd.pau()                     
     pd.upd()
     pd.fill("black")
