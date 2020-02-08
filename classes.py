@@ -109,31 +109,30 @@ class Particle:
     def __init__(self):
         global w, h
         self.pos = Vector(w/2, h/2)
-        self.rays = []
-        for a in range(0, 360, 30):
-            self.rays.append(Ray(self.pos.x, self.pos.y, radians(a)))
+        self.rays = [Ray(self.pos.x,self.pos.y, radians(a)) for a in range(0, 361, 1)]
+            
 
     def update(self, x, y):
-        ray.__init__(x, y, ray.ang)
-        #self.pos.x = x
-        #self.pos.y = y
+        self.pos.x = x
+        self.pos.y = y
+        for ray in self.rays:
+            ray.set(x, y)
+        #self.rays = [Ray(x, y, radians(a)) for a in range(0, 361, 1)]
 
     def look(self, walls):
         global pd
-        for i in range(len(self.rays)):
-            ray = self.rays[i]
-            for ray in rays:
-                closest = None
-                record = float("inf")
-                for wall in walls:
-                    p = ray.cast(wall)
-                    if p != None:
-                        d = Vector2(*p, ray.a.x, ray.a.y).len()
-                        if d < record:
-                            record = d
-                            closest = p
-                if closest != None:
-                    pd.line((ray.a.x, ray.a.y), [*closest])
+        for ray in self.rays:
+            closest = None
+            record = float("inf")
+            for wall in walls:
+                p = ray.cast(wall)
+                if p != None:
+                    d = Vector2(*p, ray.a.x, ray.a.y).len()
+                    if d < record:
+                        record = d
+                        closest = p
+            if closest != None:
+                pd.line((ray.a.x, ray.a.y), [*closest])
 
     def show(self):
         global pd
@@ -150,13 +149,6 @@ md = mou.mang
 mp = mou.mpos
 w, h = pd.scr
 num = 5
-#walls = make_walls(w, h, num)
-v = Ray(w/2, h/2, radians(0))
-
-pos = Vector(w/2, h/2)
-rays = []
-for a in range(0, 361, 1):
-    rays.append(Ray(pos.x, pos.y, radians(a)))
 
 walls = []
 
@@ -180,24 +172,26 @@ while run:
 
     for wall in walls:
         wall.show()
-    for ray in rays:
-        ray.set(*mp(cent=0))#__init__(*mp(cent=0), ray.ang)
-        closest = None
-        record = float("inf")
-        for wall in walls:
-            p = ray.cast(wall)
-            if p != None:
-                d = Vector2(*p, ray.a.x, ray.a.y).len()
-                if d < record:
-                    record = d
-                    closest = p
-        if closest != None:
-            pd.line((ray.a.x, ray.a.y), [*closest])
+    #for ray in rays:
+    #    ray.set(*mp(cent=0))
+    #    closest = None
+    #    record = float("inf")
+    #    for wall in walls:
+    #        p = ray.cast(wall)
+    #        if p != None:
+    #            d = Vector2(*p, ray.a.x, ray.a.y).len()
+    #            if d < record:
+    #                record = d
+    #                closest = p
+    #    if closest != None:
+    #        pd.line((ray.a.x, ray.a.y), [*closest])
 
-    #particle.update(*mp(cent=0))
+    print(pygame.time.Clock.get_fps())
+
+    particle.update(*mp(cent=0))
     #print(particle.pos.x, particle.pos.y)
-    #particle.show()
-    #particle.look(walls)
+    particle.show()
+    particle.look(walls)
 
     
 
