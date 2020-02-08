@@ -165,7 +165,7 @@ class cha():
 
 num = 2**5
 
-pd = pyg_draw(1)
+pd = pyg_draw(2)
 gr = Grid(pd, num, 0)
 mou = mou_pos(pd)
 gra = graph(pd, num)

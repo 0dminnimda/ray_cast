@@ -1,27 +1,24 @@
 import pygame
 from pygame.locals import *
+import math as ma
 
 class pyg_draw():
     def __init__(self, device, rev=0, alpha=0, wind_name="pygame window"):
         pygame.init()
-
-        if device == 1:
-            self.scr = (1080, 2340)
-        if device == 2:
-            n = 87
-            self.scr = (17*(n+1), 9*n)
-
-        if rev == 1:
-            self.scr = self.scr[::-1]
-
-        self.device = device
-
-        flags = RESIZABLE #FULLSCREEN |  | SRCALPHA 
-        self.wind = pygame.display.set_mode(self.scr, flags)
-        #self.scr = self.wind.get_size()
+        flags = RESIZABLE # | SRCALPHA 
+        self.wind = pygame.display.set_mode((0, 0), flags)
+        self.scr = self.wind.get_size()
         self.sur = pygame.Surface(self.scr, SRCALPHA)
         
         pygame.display.set_caption(wind_name)
+
+        #if device == 1:
+        #    self.scr = (1080, 2340)
+        if device == 2:
+            self.scr = (1540, 801)
+
+        if rev == 1:
+            self.scr = self.scr[::-1]
 
         self.colors = {
             "red":(255, 0, 0),
@@ -47,7 +44,7 @@ class pyg_draw():
     def cen(self, a=2, b=2):
         return (self.scr[0]/a, self.scr[1]/b)
         
-    def circ(self, col, pos, rad=1, wid=0):
+    def circ(self, col, pos, rad, wid=0):
         if pos[0] != None:
             col = self.col(col)
             if wid > rad:
@@ -56,7 +53,7 @@ class pyg_draw():
                 pygame.draw.circle(self.sur, col, (int(pos[0]), int(pos[1])), int(rad), (wid))
             except Exception: pass
         
-    def line(self, col, pos1, pos2, wid=1, aa=0, blend=0):
+    def line(self, col, pos1, pos2, wid=1, aa=0, blend=1):
         if pos1[0] != None and pos2[0] != None:
             col = self.col(col)
             try:
@@ -71,7 +68,7 @@ class pyg_draw():
         try:
             pygame.draw.polygon(self.sur, col, pos_s, 0)
         except Exception: pass
-       
+        
     def rect(self, col, arr, wid=0):
         col = self.col(col)
         try:
@@ -89,7 +86,7 @@ class pyg_draw():
         try:
             pygame.draw.arc(self.sur, col, rec, sa, ea, wid)
         except Exception: pass
-
+        
     def font_init(self, font_size, num_symol, col, rect_wid=1, txt_font="arial", rect=1):
         col = self.col(col)
         font = pygame.font.SysFont(txt_font, font_size)
@@ -137,17 +134,14 @@ class pyg_draw():
             elif event.type == KEYDOWN and event.key == K_ESCAPE:
                 return False
                 
+                
 class Grid():
-    def __init__(self, pd, num, off=0):
+    def __init__(self, pd, num, off=0.1, rame=6, came=13):
         self.pd = pd
         w, h = pd.scr
-        if pd.device == 1:
-            row = 6*num
-            col = 13*num
-        else:
-            row = 17*num
-            col = 9*num
-        self.row, self.col = int(row), int(col) 
+        row = rame*num
+        col = came*num
+        self.row, self.col = int(row), int(col)
         ax, ay = w/row, h/col
         margx, margy = ax*off, ay*off
         self.mx, self.my = margx, margy
@@ -162,17 +156,37 @@ class Grid():
             }
         
     def colo(self, color):
-        return self.colors.get(color)
+        if isinstance(color, int) is True:
+            return self.colors.get(color)
         
-    def draw(self, grid, wid=0):
-        row, col = self.row, self.col
+        elif isinstance(color, float) is True:
+            color *= 1000
+            return (color, color, color)#self.pd.col(list(map(int,(color, color, color)))), 2''
+        
+    def draw(self, grid, xo=0, yo=0, wid=0):
+        #row, col = self.row, self.col
+        row, col = len(grid), len(grid[0])
         x, y = self.x, self.y
         mx, my = self.mx, self.my
         fx, fy = x-mx, y-my
         for i in range(row):
-            for j in range(col):
-                color = self.colo(grid[i][j])
-                p1 = x*i+mx/2
-                p2 = y*j+my/2
-                self.pd.rect(color, [p1, p2, fx, fy], wid)
+                for j in range(col):
+                    color = self.colo(grid[i][j])
+                    p1 = x*i+mx/2  +xo
+                    p2 = y*j+my/2  +yo
+                    self.pd.rect(color, [p1, p2, fx, fy], wid)
+                    
+class mou_pos():
+    def __init__(self, pd):
+        self.scr = pd.scr
+        
+    def mp(self, val=1, cent=1):
+        x, y = pygame.mouse.get_pos()
+        if cent == 1:
+            scr = self.scr
+            x -= scr[0]/2
+            y -= scr[1]/2
+        x /= val
+        y /= val
+        return (x,y)
                     
