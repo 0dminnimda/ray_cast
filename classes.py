@@ -64,9 +64,8 @@ class Boundary:
 class Ray(Boundary):
     def __init__(self, x, y, ang):
         self.a = Vector2(x, y, x, y+10)
-        self.a.rot(ang)
-
         self.ang = ang
+        self.a.rot(ang)
 
     def cast(self, wall):
         x1, y1 = wall.a.x, wall.a.y
@@ -99,6 +98,13 @@ class Ray(Boundary):
         else:
             return None
 
+    def set(self, x, y):
+        self.a.x = x
+        self.a.y = y
+        self.a.x2 = x
+        self.a.y2 = y+10
+        self.a.rot(self.ang)
+
 class Particle:
     def __init__(self):
         global w, h
@@ -108,24 +114,26 @@ class Particle:
             self.rays.append(Ray(self.pos.x, self.pos.y, radians(a)))
 
     def update(self, x, y):
-        self.pos.x = x
-        self.pos.y = y
+        ray.__init__(x, y, ray.ang)
+        #self.pos.x = x
+        #self.pos.y = y
 
     def look(self, walls):
         global pd
         for i in range(len(self.rays)):
             ray = self.rays[i]
-            closest = 0
-            record = float("inf")
-            for wall in walls:
-                pt = ray.cast(wall)
-                if pt != None:
-                    d = Vector2(*pt, self.pos.x, self.pos.y).len()
-                    if d < record:
-                        record = d
-                        closest = pt
-            if closest != 0:
-                pd.line((self.pos.x, self.pos.y), [*closest])
+            for ray in rays:
+                closest = None
+                record = float("inf")
+                for wall in walls:
+                    p = ray.cast(wall)
+                    if p != None:
+                        d = Vector2(*p, ray.a.x, ray.a.y).len()
+                        if d < record:
+                            record = d
+                            closest = p
+                if closest != None:
+                    pd.line((ray.a.x, ray.a.y), [*closest])
 
     def show(self):
         global pd
@@ -147,7 +155,7 @@ v = Ray(w/2, h/2, radians(0))
 
 pos = Vector(w/2, h/2)
 rays = []
-for a in range(0, 361, 2):
+for a in range(0, 361, 1):
     rays.append(Ray(pos.x, pos.y, radians(a)))
 
 walls = []
@@ -173,7 +181,7 @@ while run:
     for wall in walls:
         wall.show()
     for ray in rays:
-        ray.__init__(*mp(cent=0), ray.ang)
+        ray.set(*mp(cent=0))#__init__(*mp(cent=0), ray.ang)
         closest = None
         record = float("inf")
         for wall in walls:
