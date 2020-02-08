@@ -66,6 +66,8 @@ class Ray(Boundary):
         self.a = Vector2(x, y, x, y+10)
         self.a.rot(ang)
 
+        self.ang = ang
+
     def cast(self, wall):
         x1, y1 = wall.a.x, wall.a.y
         x2, y2 = wall.a.x2, wall.a.y2
@@ -73,16 +75,27 @@ class Ray(Boundary):
         x3, y3 = self.a.x, self.a.y
         x4, y4 = self.a.x2, self.a.y2
 
+        det = (x1-x2)*(y3-y4)-(y1-y2)*(x3-x4)
+
+        #if det != 0:
+        #    t = ((x1-x3)*(y3-y4)-(y1-y3)*(x3-x4))/det
+        #    u = -((x1-x2)*(y1-y3)-(y1-y2)*(x1-x3))/det
+
+        #    if 0 <= t <= 1 and 0 <= u:
+        #        return [x1+t*(x2-x1), y1+t*(y2-y1)]
+        #    else:
+        #        return None
+        #else:
+        #    return None
+
         den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
         if den == 0:
           return None
 
         t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / den
         u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / den
-        if 0 < t < 1 and u > 0:
-            pt = Vector(x1 + t * (x2 - x1),
-                        y1 + t * (y2 - y1))
-            return pt
+        if 0 < t < 1 and 0 < u:
+            return [x1 + t * (x2 - x1), y1 + t * (y2 - y1)]
         else:
             return None
 
@@ -91,7 +104,7 @@ class Particle:
         global w, h
         self.pos = Vector(w/2, h/2)
         self.rays = []
-        for a in range(360):
+        for a in range(0, 360, 30):
             self.rays.append(Ray(self.pos.x, self.pos.y, radians(a)))
 
     def update(self, x, y):
@@ -107,12 +120,12 @@ class Particle:
             for wall in walls:
                 pt = ray.cast(wall)
                 if pt != None:
-                    d = Vector2(self.pos.x, self.pos.y, pt.x, pt.y).len()
+                    d = Vector2(*pt, self.pos.x, self.pos.y).len()
                     if d < record:
                         record = d
                         closest = pt
             if closest != 0:
-                pd.line((self.pos.x, self.pos.y), (closest.x, closest.y))
+                pd.line((self.pos.x, self.pos.y), [*closest])
 
     def show(self):
         global pd
@@ -129,14 +142,18 @@ md = mou.mang
 mp = mou.mpos
 w, h = pd.scr
 num = 5
-walls = make_walls(w, h, num)
+#walls = make_walls(w, h, num)
 v = Ray(w/2, h/2, radians(0))
 
+pos = Vector(w/2, h/2)
+rays = []
+for a in range(0, 361, 2):
+    rays.append(Ray(pos.x, pos.y, radians(a)))
 
 walls = []
 
 num = 1
-walls = make_walls(w, h, num)
+walls = make_walls(w, h, 5)
 walls.append(Boundary(-1, -1, w, -1))
 walls.append(Boundary(w, -1, w, h))
 walls.append(Boundary(w, h, -1, h))
@@ -155,13 +172,26 @@ while run:
 
     for wall in walls:
         wall.show()
+    for ray in rays:
+        ray.__init__(*mp(cent=0), ray.ang)
+        closest = None
+        record = float("inf")
+        for wall in walls:
+            p = ray.cast(wall)
+            if p != None:
+                d = Vector2(*p, ray.a.x, ray.a.y).len()
+                if d < record:
+                    record = d
+                    closest = p
+        if closest != None:
+            pd.line((ray.a.x, ray.a.y), [*closest])
 
-    particle.update(*mp(cent=0))
-    particle.show()
-    particle.look(walls)
+    #particle.update(*mp(cent=0))
+    #print(particle.pos.x, particle.pos.y)
+    #particle.show()
+    #particle.look(walls)
 
-    #v.show()
-    #v.rot(md())
+    
 
     pd.upd()
     pd.fill()
