@@ -138,7 +138,7 @@ class Particle:
         global pd
         pd.circ((self.pos.x, self.pos.y), 4)
         for ray in self.rays:
-            ray.show()
+            pass#ray.show()
 
 def make_walls(w, h, wall_num):
     return [Boundary(ri(0, w), ri(0, h), ri(0, w), ri(0, h)) for i in range(wall_num)]
@@ -151,9 +151,7 @@ w, h = pd.scr
 num = 5
 
 walls = []
-
-num = 1
-walls = make_walls(w, h, 5)
+walls = make_walls(w, h, num)
 walls.append(Boundary(-1, -1, w, -1))
 walls.append(Boundary(w, -1, w, h))
 walls.append(Boundary(w, h, -1, h))
@@ -172,28 +170,10 @@ while run:
 
     for wall in walls:
         wall.show()
-    #for ray in rays:
-    #    ray.set(*mp(cent=0))
-    #    closest = None
-    #    record = float("inf")
-    #    for wall in walls:
-    #        p = ray.cast(wall)
-    #        if p != None:
-    #            d = Vector2(*p, ray.a.x, ray.a.y).len()
-    #            if d < record:
-    #                record = d
-    #                closest = p
-    #    if closest != None:
-    #        pd.line((ray.a.x, ray.a.y), [*closest])
-
-    print(pygame.time.Clock.get_fps())
 
     particle.update(*mp(cent=0))
-    #print(particle.pos.x, particle.pos.y)
     particle.show()
     particle.look(walls)
-
-    
 
     pd.upd()
     pd.fill()
