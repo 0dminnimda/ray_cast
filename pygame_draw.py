@@ -17,6 +17,8 @@ class pyg_draw():
         if device == 2:
             self.scr = (1540, 801)
 
+        self.device = device
+
         if rev == 1:
             self.scr = self.scr[::-1]
 
@@ -44,7 +46,7 @@ class pyg_draw():
     def cen(self, a=2, b=2):
         return (self.scr[0]/a, self.scr[1]/b)
         
-    def circ(self, col, pos, rad, wid=0):
+    def circ(self, pos, rad, col="white", wid=0):
         if pos[0] != None:
             col = self.col(col)
             if wid > rad:
@@ -53,7 +55,10 @@ class pyg_draw():
                 pygame.draw.circle(self.sur, col, (int(pos[0]), int(pos[1])), int(rad), (wid))
             except Exception: pass
         
-    def line(self, col, pos1, pos2, wid=1, aa=0, blend=1):
+    def line(self, pos1, pos2, col="white", wid=1, aa=0, blend=1):
+        """
+        first position, second position, color, width, aa, blend
+        """
         if pos1[0] != None and pos2[0] != None:
             col = self.col(col)
             try:
@@ -63,31 +68,31 @@ class pyg_draw():
                     pygame.draw.aaline(self.sur, col, pos1, pos2, blend)
             except Exception: pass
 
-    def poly(self, col, pos_s):
+    def poly(self, pos_s, col="white"):
         col = self.col(col)
         try:
             pygame.draw.polygon(self.sur, col, pos_s, 0)
         except Exception: pass
         
-    def rect(self, col, arr, wid=0):
+    def rect(self, arr, col="white", wid=0):
         col = self.col(col)
         try:
             pygame.draw.rect(self.sur, col, arr, wid)
         except Exception: pass
         
-    def elip(self, col, rec, wid=1):
+    def elip(self, rec, col="white", wid=1):
         col = self.col(col)
         try:
             pygame.draw.ellipse(self.sur, col, rec, wid)
         except Exception: pass
     
-    def arc(self, col, rec, sa, ea, wid=1):
+    def arc(self, rec, sa, ea, col="white", wid=1):
         col = self.col(col)
         try:
             pygame.draw.arc(self.sur, col, rec, sa, ea, wid)
         except Exception: pass
         
-    def font_init(self, font_size, num_symol, col, rect_wid=1, txt_font="arial", rect=1):
+    def font_init(self, font_size, num_symol, col="white", rect_wid=1, txt_font="arial", rect=1):
         col = self.col(col)
         font = pygame.font.SysFont(txt_font, font_size)
         if rect == 1:
@@ -113,7 +118,7 @@ class pyg_draw():
     def blit(self, sur2, pos):
         self.sur.blit(sur2, pos)
         
-    def fill(self, col):
+    def fill(self, col="black"):
         if isinstance(col, str) is True:
             col = self.col(col)
         self.sur.fill(col)
@@ -136,9 +141,19 @@ class pyg_draw():
                 
                 
 class Grid():
-    def __init__(self, pd, num, off=0.1, rame=6, came=13):
+    def __init__(self, pd, num, off=0.1, rame=0, came=0):
         self.pd = pd
         w, h = pd.scr
+        if rame == 0:
+            if pd.device == 1:
+                rame = 6
+            else:
+                rame = 16
+        if came == 0:
+            if pd.device == 1:
+                came = 13
+            else:
+                came = 9
         row = rame*num
         col = came*num
         self.row, self.col = int(row), int(col)

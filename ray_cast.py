@@ -48,7 +48,7 @@ def intersection(p1, p2, p3, p4):
             """
             return [px, py]
         else:
-            return [x4, y4]
+            return False#[x4, y4]
     else:
         return False
 
@@ -164,24 +164,27 @@ class cha():
             self.y = y*self.gr.y
 
 num = 2**5
+num2 = 2
 
 pd = pyg_draw(2)
+#pd2 = pyg_draw(2, wind_name="2")
 gr = Grid(pd, num, 0)
+gr2 = Grid(pd, num2, 0)
 mou = mou_pos(pd)
 gra = graph(pd, num)
 
 wid, hei = pd.scr
 
-qual = num#200
+qual = 200
 print(qual)
-view = 1/8
-r = gr.x*5
-st = 0.25
+view = 1
+r = gr2.x*5
+st = 1
 rot_ang = tau/2**5
 
 me = cha(gr, 5, 4, view, 0, qual, r)
 
-siz = ((gr.row), (gr.col))
+siz = ((gr2.row), (gr2.col))
 grids = np.full(siz, 0)
 
 map = np.array([
@@ -218,7 +221,6 @@ while run:
                 
             if event.key == K_w:
                 me.mov(0, -st)
-                print(me.x, me.y)
             if event.key == K_s:
                 me.mov(0, st)
             if event.key == K_a:
@@ -227,7 +229,7 @@ while run:
                 me.mov(st, 0)
                 
         if event.type != MOUSEBUTTONUP:
-            #me.pos(*mou.mp(cent=0), u=0)
+            me.pos(*mou.mp(cent=0), u=0)
             #print(me.x, me.y)
             pass
     
@@ -235,11 +237,11 @@ while run:
     #print(grd2)
                   
     rays = cone(pd, me)
-    dists = check(grids, gr, me, pd, rays)
+    dists = check(grids, gr2, me, pd, rays)
         
-    darr, dists = gra.tran(dists, r, 2.5, 20)
+    #darr, dists = gra.tran(dists, r, 1, 20)
         
-    gra.draw(darr, dists)
+    #gra.draw(darr, dists)
     
     #me.ang -= 2*rot_ang
         
