@@ -2,6 +2,8 @@ import pygame
 from pygame.locals import *
 from pygame_draw import pyg_draw, Grid, mou_pos
 from random import randint as ri
+from math import sin, cos
+import numpy as np
 
 class Vector:
     def __init__(self, x, y):
@@ -11,14 +13,30 @@ class Vector:
     def len(self):
         return np.linarg.norm([self.x, self.y])
 
+    def rot(self, ang):
+        r = self.len()
+        self.x = r*cos(ang)
+        self.y = r*sin(ang)
+
 class Vector2(Vector):
     def __init__(self, x, y, x2, y2):
+        """
+        x, y, x2, y2
+        """
         Vector.__init__(self, x, y)
         self.x2 = x2
         self.y2 = y2
 
     def len(self):
-        return np.linarg.norm([self.x2-self.x, self.y2-self.y])
+        """
+        calculate vector length
+        """
+        return np.linalg.norm([self.x2-self.x, self.y2-self.y])
+
+    def rot(self, ang):
+        r = self.len()
+        self.x2 = self.x + r*cos(ang)
+        self.y2 = self.y + r*sin(ang)
 
 class Boundary:
     def __init__(self, x1, y1, x2, y2):
@@ -31,10 +49,13 @@ class Boundary:
     def show(self):
         self.pd.line((self.a.x, self.a.y), (self.a.x2, self.a.y2))
 
+    def rot(self, ang):
+        self.a.rot(ang)
+
 class Ray:
-  def __init__(self, pos, angle):
-    self.pos = pos
-    self.dir = p5.Vector.fromAngle(angle)
+    def __init__(self, pos, angle):
+        self.pos = pos
+        self.dir = Vector2()
 
     '''def lookAt(x, y):
     this.dir.x = x - this.pos.x
@@ -76,17 +97,31 @@ class Ray:
     }
   }'''
 
+def make_walls(w, h, wall_num):
+    return [Boundary(ri(0, w), ri(0, h), ri(0, w), ri(0, h)) for i in range(wall_num)]
+
 pd = pyg_draw(2)
 w, h = pd.scr
-b = Boundary(ri(0, w), ri(0, w), ri(0, h), ri(0, h))
+num = 0
+walls = make_walls(w, h, num)
+b = make_walls(w, h, 1)[0]
 run = True
+c = 0
 while run:
     for event in pygame.event.get():
         if event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 run = False
+            if event.key == K_r:
+                walls = make_walls(w, h, num)
+                b = make_walls(w, h, 1)[0]
 
+    for wall in walls:
+        wall.show()
+
+    #b.rot(c)
     b.show()
 
     pd.upd()
     pd.fill()
+    c += 0.001
