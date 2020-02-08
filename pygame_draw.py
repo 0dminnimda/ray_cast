@@ -195,7 +195,7 @@ class mou_pos():
     def __init__(self, pd):
         self.scr = pd.scr
         
-    def mp(self, val=1, cent=1):
+    def mpos(self, val=1, cent=1):
         x, y = pygame.mouse.get_pos()
         if cent == 1:
             scr = self.scr
@@ -204,4 +204,7 @@ class mou_pos():
         x /= val
         y /= val
         return (x,y)
+
+    def mang(self, *arg):
+        return ma.atan2(*self.mpos(*arg)[::-1])
                     
