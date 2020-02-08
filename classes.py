@@ -58,7 +58,7 @@ class Boundary:
         global pd
         pd.line((self.a.x, self.a.y), (self.a.x2, self.a.y2))
 
-    def rot(self, ang):
+    def rot(self, ang, add=0):
         self.a.rot(ang)
 
 class Ray(Boundary):
@@ -105,12 +105,20 @@ class Ray(Boundary):
         self.a.y2 = y+10
         self.a.rot(self.ang)
 
+    def rot(self, ang, add=0):
+        if add != 0:
+            self.a.rot(ang+self.ang)
+        else:
+            self.a.rot(ang)
+
 class Particle:
-    def __init__(self):
+    def __init__(self, ang, view):
         global w, h
         self.pos = Vector(w/2, h/2)
-        self.rays = [Ray(self.pos.x,self.pos.y, radians(a)) for a in range(0, 361, 1)]
+        self.rays = [Ray(self.pos.x,self.pos.y, radians(a)) for a in range(ang-view, ang+view, 1)]
             
+    def __init__(self, ang, view):
+        self.rays = [Ray(self.pos.x,self.pos.y, radians(a)) for a in range(ang-view, ang+view, 1)]
 
     def update(self, x, y):
         self.pos.x = x
@@ -139,6 +147,85 @@ class Particle:
         pd.circ((self.pos.x, self.pos.y), 4)
         for ray in self.rays:
             pass#ray.show()
+
+class Particle {
+  constructor() {
+    this.fov = 45;
+    this.pos = createVector(sceneW / 2, sceneH / 2);
+    this.rays = [];
+    this.heading = 0;
+    for (let a = -this.fov / 2; a < this.fov / 2; a += 1) {
+      this.rays.push(new Ray(this.pos, radians(a)));
+    }
+  }
+
+  updateFOV(fov) {
+    this.fov = fov;
+    this.rays = [];
+    for (let a = -this.fov / 2; a < this.fov / 2; a += 1) {
+      this.rays.push(new Ray(this.pos, radians(a) + this.heading));
+    }
+  }
+
+  rotate(angle) {
+    this.heading += angle;
+    let index = 0;
+    for (let a = -this.fov / 2; a < this.fov / 2; a += 1) {
+      this.rays[index].setAngle(radians(a) + this.heading);
+      index++;
+    }
+  }
+
+  move(amt) {
+    const vel = p5.Vector.fromAngle(this.heading);
+    vel.setMag(amt);
+    this.pos.add(vel);
+  }
+
+  update(x, y) {
+    this.pos.set(x, y);
+  }
+
+  look(walls) {
+    const scene = [];
+    for (let i = 0; i < this.rays.length; i++) {
+      const ray = this.rays[i];
+      let closest = null;
+      let record = Infinity;
+      for (let wall of walls) {
+        const pt = ray.cast(wall);
+        if (pt) {
+          let d = p5.Vector.dist(this.pos, pt);
+          const a = ray.dir.heading() - this.heading;
+          //if (!mouseIsPressed) {
+            d *= cos(a);
+          //}
+          if (d < record) {
+            record = d;
+            closest = pt;
+          }
+        }
+      }
+      if (closest) {
+        // colorMode(HSB);
+        // stroke((i + frameCount * 2) % 360, 255, 255, 50);
+        stroke(255, 100);
+        line(this.pos.x, this.pos.y, closest.x, closest.y);
+      }
+      scene[i] = record;
+    }
+    return scene;
+  }
+
+  show() {
+    fill(255);
+    ellipse(this.pos.x, this.pos.y, 4);
+    for (let ray of this.rays) {
+      ray.show();
+    }
+  }
+}
+
 
 def make_walls(w, h, wall_num):
     return [Boundary(ri(0, w), ri(0, h), ri(0, w), ri(0, h)) for i in range(wall_num)]
