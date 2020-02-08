@@ -148,6 +148,7 @@ mou = mou_pos(pd)
 md = mou.mang
 mp = mou.mpos
 w, h = pd.scr
+#h//=2
 num = 5
 
 walls = []

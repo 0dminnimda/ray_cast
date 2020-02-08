@@ -5,18 +5,19 @@ import math as ma
 class pyg_draw():
     def __init__(self, device, rev=0, alpha=0, wind_name="pygame window"):
         pygame.init()
-        flags = RESIZABLE # | SRCALPHA 
-        self.wind = pygame.display.set_mode((0, 0), flags)
-        self.scr = self.wind.get_size()
+        flags = RESIZABLE # | SRCALPHA
+
+        if device != 2:
+            self.wind = pygame.display.set_mode((0, 0), flags)
+            self.scr = self.wind.get_size()
+        if device == 2:
+            self.scr = (1540, 801)
+            self.wind = pygame.display.set_mode(self.scr, flags)
         self.sur = pygame.Surface(self.scr, SRCALPHA)
-        
         pygame.display.set_caption(wind_name)
 
         #if device == 1:
         #    self.scr = (1080, 2340)
-        if device == 2:
-            self.scr = (1540, 801)
-
         self.device = device
 
         if rev == 1:
