@@ -17,7 +17,7 @@ class Vector:
         """
         calculate vector length
         """
-        return np.linarg.norm([self.x, self.y])
+        return np.linalg.norm([self.x, self.y])
 
     def rot(self, ang):
         """
@@ -86,16 +86,62 @@ class Ray(Boundary):
         else:
             return None
 
+class Particle:
+    def __init__(self):
+        global w, h
+        self.pos = Vector(w/2, h/2)
+        self.rays = []
+        for a in range(360):
+            self.rays.append(Ray(self.pos.x, self.pos.y, radians(a)))
+
+    def update(self, x, y):
+        self.pos.x = x
+        self.pos.y = y
+
+    def look(self, walls):
+        global pd
+        for i in range(len(self.rays)):
+            ray = self.rays[i]
+            closest = 0
+            record = float("inf")
+            for wall in walls:
+                pt = ray.cast(wall)
+                if pt != None:
+                    d = Vector2(self.pos.x, self.pos.y, pt.x, pt.y).len()
+                    if d < record:
+                        record = d
+                        closest = pt
+            if closest != 0:
+                pd.line((self.pos.x, self.pos.y), (closest.x, closest.y))
+
+    def show(self):
+        global pd
+        pd.circ((self.pos.x, self.pos.y), 4)
+        for ray in self.rays:
+            ray.show()
+
 def make_walls(w, h, wall_num):
     return [Boundary(ri(0, w), ri(0, h), ri(0, w), ri(0, h)) for i in range(wall_num)]
 
 pd = pyg_draw(2)
 mou = mou_pos(pd)
 md = mou.mang
+mp = mou.mpos
 w, h = pd.scr
 num = 5
 walls = make_walls(w, h, num)
 v = Ray(w/2, h/2, radians(0))
+
+
+walls = []
+
+num = 1
+walls = make_walls(w, h, num)
+walls.append(Boundary(-1, -1, w, -1))
+walls.append(Boundary(w, -1, w, h))
+walls.append(Boundary(w, h, -1, h))
+walls.append(Boundary(-1, h, -1, -1))
+particle = Particle()
 
 run = True
 c = 0
@@ -110,8 +156,12 @@ while run:
     for wall in walls:
         wall.show()
 
-    v.show()
-    v.rot(md())
+    particle.update(*mp(cent=0))
+    particle.show()
+    particle.look(walls)
+
+    #v.show()
+    #v.rot(md())
 
     pd.upd()
     pd.fill()
