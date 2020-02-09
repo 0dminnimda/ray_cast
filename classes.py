@@ -148,16 +148,7 @@ class Particle:
         for ray in self.rays:
             pass#ray.show()
 
-class Particle {
-  constructor() {
-    this.fov = 45;
-    this.pos = createVector(sceneW / 2, sceneH / 2);
-    this.rays = [];
-    this.heading = 0;
-    for (let a = -this.fov / 2; a < this.fov / 2; a += 1) {
-      this.rays.push(new Ray(this.pos, radians(a)));
-    }
-  }
+'''class Particle {
 
   updateFOV(fov) {
     this.fov = fov;
@@ -224,7 +215,7 @@ class Particle {
       ray.show();
     }
   }
-}
+}'''
 
 
 def make_walls(w, h, wall_num):
